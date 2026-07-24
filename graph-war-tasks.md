@@ -12,24 +12,24 @@
 
 ## Phase 0 — Chuẩn bị & khởi tạo dự án
 
-- [ ] **T0.1 — Kiểm tra môi trường.** Cài Node LTS, xác nhận `node -v`, `npm -v`. Cài Expo Go trên điện thoại thật để test.
+- [x] **T0.1 — Kiểm tra môi trường.** Cài Node LTS, xác nhận `node -v`, `npm -v`. Cài Expo Go trên điện thoại thật để test.
   *Acceptance:* chạy được `npx expo --version`.
 
-- [ ] **T0.2 — Tạo dự án Expo.**
+- [x] **T0.2 — Tạo dự án Expo.**
   ```bash
   npx create-expo-app graph-war --template blank
   cd graph-war
   ```
   *Acceptance:* `npx expo start` mở được app trắng trên Expo Go.
 
-- [ ] **T0.3 — Cài dependencies lõi.**
+- [x] **T0.3 — Cài dependencies lõi.**
   ```bash
   npx expo install react-native-svg
   npm install mathjs
   ```
   *Acceptance:* import `mathjs` và `react-native-svg` không lỗi.
 
-- [ ] **T0.4 — Dựng cấu trúc thư mục.**
+- [x] **T0.4 — Dựng cấu trúc thư mục.**
   ```
   src/
     engine/        # logic thuần, KHÔNG import React
@@ -52,10 +52,10 @@
   ```
   *Acceptance:* thư mục tồn tại, `App.js` render "Graph War".
 
-- [ ] **T0.5 — File config hằng số.** Tạo `src/config.js` chứa: `PIXELS_PER_UNIT`, `X_MAX`, `STEP`, `MAX_SLOPE`, `PLAYER_RADIUS`, `DEFAULT_MANA`, `INPUT_TIME_SEC`, kích thước canvas.
+- [x] **T0.5 — File config hằng số.** Tạo `src/config.js` chứa: `PIXELS_PER_UNIT`, `X_MAX`, `STEP`, `MAX_SLOPE`, `PLAYER_RADIUS`, `DEFAULT_MANA`, `INPUT_TIME_SEC`, kích thước canvas.
   *Acceptance:* mọi hằng số ma thuật về sau đọc từ đây, không hardcode rải rác.
 
-- [ ] **T0.6 — Khởi tạo git.** `git init`, thêm `.gitignore` (node_modules, .expo). Commit đầu tiên.
+- [x] **T0.6 — Khởi tạo git.** `git init`, thêm `.gitignore` (node_modules, .expo). Commit đầu tiên.
   *Acceptance:* `git log` có commit "init".
 
 ---
@@ -64,35 +64,35 @@
 
 Mục tiêu: vẽ được đúng một parabol cứng `x^2`, làm chủ việc quy đổi toạ độ trước khi làm bất cứ thứ gì khác.
 
-- [ ] **T1.1 — Module toạ độ.** Tạo `src/engine/coords.js`: hàm `toScreen(origin, ux, uy, {pixelsPerUnit, direction})` trả về `{x, y}` pixel (nhớ đảo trục y).
+- [x] **T1.1 — Module toạ độ.** Tạo `src/engine/coords.js`: hàm `toScreen(origin, ux, uy, {pixelsPerUnit, direction})` trả về `{x, y}` pixel (nhớ đảo trục y).
   *Acceptance:* unit test: `toScreen({x:100,y:200}, 0, 0, …) === {x:100, y:200}`.
 
-- [ ] **T1.2 — Sinh mảng điểm cơ bản.** Trong `src/engine/curve.js` viết `sampleCurve(fn, origin, opts)` (chưa cần maxSlope). Quét `ux` từ 0 tới `xMax` bước `step`.
+- [x] **T1.2 — Sinh mảng điểm cơ bản.** Trong `src/engine/curve.js` viết `sampleCurve(fn, origin, opts)` (chưa cần maxSlope). Quét `ux` từ 0 tới `xMax` bước `step`.
   *Acceptance:* `sampleCurve(x=>x*x, …)` trả mảng điểm tăng dần, không NaN.
 
-- [ ] **T1.3 — Chuyển mảng điểm thành path SVG.** Viết `toPathD(pts)` trong `curve.js`.
+- [x] **T1.3 — Chuyển mảng điểm thành path SVG.** Viết `toPathD(pts)` trong `curve.js`.
   *Acceptance:* trả chuỗi bắt đầu bằng `M`, các đoạn sau là `L`.
 
-- [ ] **T1.4 — Component canvas tối thiểu.** `src/components/GameCanvas.jsx` dùng `<Svg>` + `<Path>` vẽ đường cong từ props `curve`. Vẽ thêm lưới nền (các đường cách nhau `pixelsPerUnit`) để dễ debug.
+- [x] **T1.4 — Component canvas tối thiểu.** `src/components/GameCanvas.jsx` dùng `<Svg>` + `<Path>` vẽ đường cong từ props `curve`. Vẽ thêm lưới nền (các đường cách nhau `pixelsPerUnit`) để dễ debug.
   *Acceptance:* mở app thấy một parabol vẽ trên lưới, đúng hình.
 
-- [ ] **T1.5 — Kiểm chứng đảo trục.** Vẽ thêm `y = x` và `y = -x` để xác nhận hướng lên/xuống đúng.
+- [x] **T1.5 — Kiểm chứng đảo trục.** Vẽ thêm `y = x` và `y = -x` để xác nhận hướng lên/xuống đúng.
   *Acceptance:* `y=x` đi lên bên phải, `y=-x` đi xuống.
 
 ---
 
 ## Phase 2 — Nhập hàm & vẽ động
 
-- [ ] **T2.1 — Compile biểu thức.** Trong `astGuard.js` (tạm) hoặc `curve.js`, viết `compileFunction(expr)` dùng `mathjs.parse(expr).compile()`, bọc try/catch trả `NaN` khi lỗi runtime.
+- [x] **T2.1 — Compile biểu thức.** Trong `astGuard.js` (tạm) hoặc `curve.js`, viết `compileFunction(expr)` dùng `mathjs.parse(expr).compile()`, bọc try/catch trả `NaN` khi lỗi runtime.
   *Acceptance:* `compileFunction('sin(x)+x')(0) === 0`.
 
-- [ ] **T2.2 — Ô nhập hàm.** `src/components/EquationInput.jsx`: `TextInput` + nút "Bắn". Có prop `onFire(expr)`.
+- [x] **T2.2 — Ô nhập hàm.** `src/components/EquationInput.jsx`: `TextInput` + nút "Bắn". Có prop `onFire(expr)`.
   *Acceptance:* gõ `x^2`, bấm Bắn → gọi `onFire('x^2')`.
 
-- [ ] **T2.3 — Nối input → canvas.** Trong `GameScreen.jsx`, state `curve`; khi `onFire`: compile → sample → setState → canvas vẽ.
+- [x] **T2.3 — Nối input → canvas.** Trong `GameScreen.jsx`, state `curve`; khi `onFire`: compile → sample → setState → canvas vẽ.
   *Acceptance:* nhập hàm bất kỳ hợp lệ → đường cong cập nhật ngay.
 
-- [ ] **T2.4 — Xử lý lỗi cú pháp cơ bản.** Nhập sai (`x^`, `sin(`) → hiện thông báo lỗi, không crash.
+- [x] **T2.4 — Xử lý lỗi cú pháp cơ bản.** Nhập sai (`x^`, `sin(`) → hiện thông báo lỗi, không crash.
   *Acceptance:* nhập rác không làm app văng.
 
 ---
