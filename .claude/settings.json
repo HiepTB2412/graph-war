@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(npx expo *)",
+      "Bash(nvm --version)",
+      "Read(//Users/anhlocmascom/**)",
+      "Bash(nvm current *)",
+      "Bash(nvm ls *)",
+      "Bash(/usr/local/bin/node -v)",
+      "Read(//Users/anhlocmascom/.nvm/alias/**)",
+      "Bash(env)",
+      "Bash(command -v npx)",
+      "Bash(npx -v)",
+      "Bash(npx create-expo-app *)",
+      "Bash(node -e \"console.log\\(process.version, typeof File\\)\")",
+      "Bash(npm exec *)",
+      "Bash(NODE_DEBUG= node -e \"process.on\\('exit',\\(\\)=>{}\\); console.log\\(process.execPath\\)\")",
+      "Bash(find ~/.npm/_npx -maxdepth 4 -iname \"create-expo-app*\" 2>/dev/null | head -20)",
+      "Read(//Users/anhlocmascom/.npm/_npx/**)",
+      "Read(//Users/anhlocmascom/.npm/_npx/a712338f43e79bae/node_modules/create-expo-app/bin/**)",
+      "Read(//Users/anhlocmascom/.npm/_npx/a712338f43e79bae/node_modules/create-expo-app/**)",
+      "Read(//private/tmp/**)",
+      "Bash(node /Users/anhlocmascom/.npm/_npx/a712338f43e79bae/node_modules/create-expo-app/build/index.js --template blank test-graph-war)",
+      "Bash(rm -rf /tmp/test-graph-war)",
+      "Bash(node /Users/anhlocmascom/.npm/_npx/a712338f43e79bae/node_modules/create-expo-app/build/index.js --template blank .)",
+      "Bash(node node_modules/expo/bin/cli install react-native-svg)",
+      "Bash(nvm ls-remote *)",
+      "Bash(nvm install *)",
+      "Bash(git init *)",
+      "Bash(rm -rf .yarn .yarnrc.yml)",
+      "Bash(git add *)"
+    ],
+    "additionalDirectories": [
+      "/private/tmp/test-graph-war",
+      "/Users/anhlocmascom/Desktop/graph-war/.yarn"
+    ]
+  }
+}
