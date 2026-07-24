@@ -1,13 +1,31 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { analyze } from '../engine/astGuard';
+
+const DEBOUNCE_MS = 200;
 
 // EquationInput — ô nhập biểu thức + nút "Bắn". Gọi onFire(expr) khi bấm, hiện error nếu có.
-export default function EquationInput({ onFire, error }) {
+// Gõ tới đâu, chạy analyze(text, rules) (debounce) tới đó để hiện mana tiêu hao / lý do cấm
+// và disable nút Bắn khi biểu thức không hợp lệ (T3.8).
+export default function EquationInput({ onFire, error, rules }) {
   const [text, setText] = useState('');
+  const [check, setCheck] = useState({ ok: true, reason: '', mana: 0 });
+
+  useEffect(() => {
+    const expr = text.trim();
+    if (!expr) {
+      setCheck({ ok: true, reason: '', mana: 0 });
+      return;
+    }
+    const timer = setTimeout(() => setCheck(analyze(expr, rules)), DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [text, rules]);
+
+  const canFire = text.trim().length > 0 && check.ok;
 
   const handleFire = () => {
     const expr = text.trim();
-    if (!expr) return;
+    if (!expr || !check.ok) return;
     onFire(expr);
   };
 
@@ -24,10 +42,19 @@ export default function EquationInput({ onFire, error }) {
           autoCorrect={false}
           onSubmitEditing={handleFire}
         />
-        <TouchableOpacity style={styles.button} onPress={handleFire}>
+        <TouchableOpacity
+          style={[styles.button, !canFire && styles.buttonDisabled]}
+          onPress={handleFire}
+          disabled={!canFire}
+        >
           <Text style={styles.buttonText}>Bắn</Text>
         </TouchableOpacity>
       </View>
+      {text.trim() ? (
+        <Text style={check.ok ? styles.mana : styles.error}>
+          {check.ok ? `Mana ${check.mana}/${rules.maxMana}` : check.reason}
+        </Text>
+      ) : null}
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );
@@ -59,10 +86,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  buttonDisabled: {
+    backgroundColor: '#5c2422',
+  },
   buttonText: {
     color: '#fff',
     fontWeight: '700',
     fontSize: 16,
+  },
+  mana: {
+    color: '#80cbc4',
+    marginTop: 6,
+    fontSize: 13,
   },
   error: {
     color: '#ff8a80',

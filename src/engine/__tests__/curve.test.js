@@ -30,6 +30,23 @@ describe('sampleCurve', () => {
     const pts = sampleCurve((x) => -x, origin, opts);
     expect(pts[pts.length - 1].y).toBeGreaterThan(pts[0].y);
   });
+
+  it('cắt đường cong khi ra ngoài bounds màn hình (T4.3)', () => {
+    // x = ux*10 → ux=0,1,2,3,4,5 cho x=0,10,20,30,40,50; bounds.w=20 nên dừng sau x=20
+    const pts = sampleCurve((x) => x, origin, { ...opts, bounds: { w: 20, h: 100 } });
+    expect(pts.length).toBeLessThan(6);
+    expect(pts[pts.length - 1].x).toBeLessThanOrEqual(20);
+  });
+
+  it('cắt đường cong khi độ dốc giữa hai điểm liên tiếp vượt maxSlope (dốc đứng, T4.3)', () => {
+    const pts = sampleCurve((x) => x * 100, origin, { ...opts, maxSlope: 5 });
+    expect(pts.length).toBe(1);
+  });
+
+  it('không cắt gì khi không truyền bounds/maxSlope (tương thích Phase 1-3)', () => {
+    const pts = sampleCurve((x) => x, origin, opts);
+    expect(pts.length).toBe(6);
+  });
 });
 
 describe('toPathD', () => {

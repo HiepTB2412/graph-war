@@ -101,47 +101,48 @@ Mục tiêu: vẽ được đúng một parabol cứng `x^2`, làm chủ việc 
 
 Xem mục 5 của spec. Đây là phần chịu tải chính.
 
-- [ ] **T3.1 — Bảng giá mana.** Định nghĩa `COST` trong `astGuard.js` theo bảng ở spec.
+- [x] **T3.1 — Bảng giá mana.** Định nghĩa `COST` trong `astGuard.js` theo bảng ở spec.
   *Acceptance:* có đủ add/subtract/multiply/divide/pow/sin/cos/tan/sqrt/log/abs.
 
-- [ ] **T3.2 — Duyệt AST & tính mana.** Viết `analyze(expr, rules)` dùng `node.traverse`. Cộng mana theo `OperatorNode` và `FunctionNode`.
+- [x] **T3.2 — Duyệt AST & tính mana.** Viết `analyze(expr, rules)` dùng `node.traverse`. Cộng mana theo `OperatorNode` và `FunctionNode`.
   *Acceptance:* `analyze('sin(x)+x^2', …).mana === 4 + 1 + 3 = 8`.
 
-- [ ] **T3.3 — Whitelist loại hàm.** Trong traverse, nếu tên hàm không thuộc `rules.allowedFns` → `ok=false`, `reason`.
+- [x] **T3.3 — Whitelist loại hàm.** Trong traverse, nếu tên hàm không thuộc `rules.allowedFns` → `ok=false`, `reason`.
   *Acceptance:* trận "chỉ đa thức" từ chối `sin(x)`.
 
-- [ ] **T3.4 — Chống phá game.** Thêm: cấm `divide`; giới hạn bậc `pow` ≤ `maxDeg`; giới hạn số node ≤ `maxNodes`.
+- [x] **T3.4 — Chống phá game.** Thêm: cấm `divide`; giới hạn bậc `pow` ≤ `maxDeg`; giới hạn số node ≤ `maxNodes`.
   *Acceptance:* `1/(x-1)` bị từ chối; `x^9` bị từ chối; biểu thức siêu dài bị từ chối.
 
-- [ ] **T3.5 — Ràng buộc theo trận.** Hỗ trợ `banPow2` (cấm `x^2`), `requireParen` (bắt buộc có ngoặc).
+- [x] **T3.5 — Ràng buộc theo trận.** Hỗ trợ `banPow2` (cấm `x^2`), `requireParen` (bắt buộc có ngoặc).
   *Acceptance:* trận cấm `x^2` từ chối `x^2` nhưng nhận `x^3`; trận yêu cầu ngoặc từ chối `x+1`.
 
-- [ ] **T3.6 — Chặn dao động nhanh.** Từ chối hệ số lớn bên trong `sin/cos` (vd `|coeff| > ngưỡng`), hoặc để `MAX_SLOPE` ở sample lo (T4.x). Chọn một, ghi chú lại.
+- [x] **T3.6 — Chặn dao động nhanh.** Từ chối hệ số lớn bên trong `sin/cos` (vd `|coeff| > ngưỡng`), hoặc để `MAX_SLOPE` ở sample lo (T4.x). Chọn một, ghi chú lại.
   *Acceptance:* `sin(999*x)` bị chặn hoặc bị cắt đường cong.
+  *Ghi chú:* chọn chặn ở mức AST trong `analyze()` (so hệ số nhân trực tiếp trong đối số của sin/cos/tan với `rules.maxTrigCoeff`), không dựa vào `MAX_SLOPE` lúc sample — lỗi hiện ngay lúc gõ, trước khi tốn mana vẽ ra đường cong bị cắt cụt.
 
-- [ ] **T3.7 — File cấu hình trận.** `src/game/rules.js` xuất vài `MatchRules` mẫu (polynomial-only, trig-only, no-square, chaos).
+- [x] **T3.7 — File cấu hình trận.** `src/game/rules.js` xuất vài `MatchRules` mẫu (polynomial-only, trig-only, no-square, chaos).
   *Acceptance:* đổi rule → hành vi kiểm tra đổi theo, không sửa engine.
 
-- [ ] **T3.8 — Hiển thị mana & lý do từ chối.** `EquationInput` gọi `analyze` khi gõ (debounce), hiện mana tiêu hao và lý do nếu không hợp lệ; disable nút Bắn khi `!ok`.
+- [x] **T3.8 — Hiển thị mana & lý do từ chối.** `EquationInput` gọi `analyze` khi gõ (debounce), hiện mana tiêu hao và lý do nếu không hợp lệ; disable nút Bắn khi `!ok`.
   *Acceptance:* gõ `sin(x)+x^2` thấy "mana 8/10"; gõ hàm cấm thấy lý do.
 
-- [ ] **T3.9 — Unit test AST Guard.** Viết test cho các case: hợp lệ, vượt mana, hàm cấm, pole, bậc cao, thiếu ngoặc.
+- [x] **T3.9 — Unit test AST Guard.** Viết test cho các case: hợp lệ, vượt mana, hàm cấm, pole, bậc cao, thiếu ngoặc.
   *Acceptance:* tất cả case pass.
 
 ---
 
 ## Phase 4 — Người chơi & bắn từ vị trí
 
-- [ ] **T4.1 — Mô hình người chơi.** Định nghĩa `Player` (xem spec mục 7). Tạo state ban đầu 2 người: P1 trái, P2 phải.
+- [x] **T4.1 — Mô hình người chơi.** Định nghĩa `Player` (xem spec mục 7). Tạo state ban đầu 2 người: P1 trái, P2 phải.
   *Acceptance:* canvas vẽ 2 chấm tròn có nhãn P1/P2.
 
-- [ ] **T4.2 — Đường cong xuất phát từ người bắn.** `origin` = vị trí người đang tới lượt; `direction` = +1 cho P1, -1 cho P2 (lật sang trái).
+- [x] **T4.2 — Đường cong xuất phát từ người bắn.** `origin` = vị trí người đang tới lượt; `direction` = +1 cho P1, -1 cho P2 (lật sang trái).
   *Acceptance:* P2 bắn → đường cong đi sang trái.
 
-- [ ] **T4.3 — Giới hạn độ dốc / miền vẽ.** Thêm `maxSlope` và cắt biên vào `sampleCurve` (spec mục 6.1).
+- [x] **T4.3 — Giới hạn độ dốc / miền vẽ.** Thêm `maxSlope` và cắt biên vào `sampleCurve` (spec mục 6.1).
   *Acceptance:* hàm dốc đứng bị cắt, không vẽ vọt ra ngoài màn hình.
 
-- [ ] **T4.4 — Render trạng thái người chơi.** Người bị loại vẽ khác màu + dấu X.
+- [x] **T4.4 — Render trạng thái người chơi.** Người bị loại vẽ khác màu + dấu X.
   *Acceptance:* set `eliminated=true` → hiển thị đổi.
 
 ---
