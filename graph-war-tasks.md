@@ -149,48 +149,49 @@ Xem mục 5 của spec. Đây là phần chịu tải chính.
 
 ## Phase 5 — Va chạm & loại người chơi
 
-- [ ] **T5.1 — Hàm va chạm.** `checkCollision(pts, players, shooterId)` trong `collision.js` (spec mục 6.4).
+- [x] **T5.1 — Hàm va chạm.** `checkCollision(pts, players, shooterId)` trong `collision.js` (spec mục 6.4).
   *Acceptance:* test: điểm nằm trong bán kính → trả `hitId`.
 
-- [ ] **T5.2 — Nối va chạm vào lượt bắn.** Sau khi vẽ, chạy `checkCollision`; nếu trúng → đánh dấu `eliminated`.
+- [x] **T5.2 — Nối va chạm vào lượt bắn.** Sau khi vẽ, chạy `checkCollision`; nếu trúng → đánh dấu `eliminated`.
   *Acceptance:* bắn trúng P2 → P2 chuyển trạng thái loại.
+  *Ghi chú:* chốt câu hỏi mở #4 = **một phát chết** (không có máu/HP) — trúng → `eliminated=true` ngay (`gameState.js`, action `ELIMINATE`), không có state sát thương tích luỹ. Đơn giản, khớp vòng lặp turn-based cốt lõi (spec mục 2); không cần thiết kế thêm UI thanh máu.
 
-- [ ] **T5.3 — (Tuỳ chọn) animate đạn bay.** Vẽ dần từng điểm bằng `requestAnimationFrame` / `Animated`, kiểm tra va chạm theo tiến trình, dừng khi trúng.
+- [x] **T5.3 — (Tuỳ chọn) animate đạn bay.** Vẽ dần từng điểm bằng `requestAnimationFrame` / `Animated`, kiểm tra va chạm theo tiến trình, dừng khi trúng.
   *Acceptance:* thấy đường cong "bay" và dừng tại điểm trúng.
 
 ---
 
 ## Phase 6 — Turn manager, timer, điều kiện thắng
 
-- [ ] **T6.1 — Reducer game state.** `src/game/gameState.js`: actions `FIRE`, `NEXT_TURN`, `ELIMINATE`, `RESET`. `phase`: aiming → firing → over.
+- [x] **T6.1 — Reducer game state.** `src/game/gameState.js`: actions `FIRE`, `NEXT_TURN`, `ELIMINATE`, `RESET`. `phase`: aiming → firing → over.
   *Acceptance:* dispatch `NEXT_TURN` xoay vòng qua người chưa loại.
 
-- [ ] **T6.2 — Chuyển lượt sau mỗi phát.** Bắn xong (trúng hay trượt) → `NEXT_TURN`.
+- [x] **T6.2 — Chuyển lượt sau mỗi phát.** Bắn xong (trúng hay trượt) → `NEXT_TURN`.
   *Acceptance:* hai người thay phiên đúng.
 
-- [ ] **T6.3 — Kiểm tra thắng.** Còn 1 người sống → `phase='over'`, set `winnerId`.
+- [x] **T6.3 — Kiểm tra thắng.** Còn 1 người sống → `phase='over'`, set `winnerId`.
   *Acceptance:* loại P2 → hiện "P1 thắng".
 
-- [ ] **T6.4 — Timer nhập (cơ chế 5).** `TurnBar.jsx` đếm ngược `inputTimeSec`. Hết giờ chưa bắn → mất lượt (`NEXT_TURN`).
+- [x] **T6.4 — Timer nhập (cơ chế 5).** `TurnBar.jsx` đếm ngược `inputTimeSec`. Hết giờ chưa bắn → mất lượt (`NEXT_TURN`).
   *Acceptance:* để trôi 10s → tự chuyển lượt.
 
-- [ ] **T6.5 — Reset mana mỗi lượt.** Đầu lượt, mana về `DEFAULT_MANA`.
+- [x] **T6.5 — Reset mana mỗi lượt.** Đầu lượt, mana về `DEFAULT_MANA`.
   *Acceptance:* sang lượt mới mana đầy lại.
 
-- [ ] **T6.6 — Màn hình kết thúc.** Overlay "… thắng" + nút "Chơi lại" (dispatch `RESET`).
+- [x] **T6.6 — Màn hình kết thúc.** Overlay "… thắng" + nút "Chơi lại" (dispatch `RESET`).
   *Acceptance:* bấm chơi lại → ván mới, vị trí/mana reset.
 
 ---
 
 ## Phase 7 — Xoay hệ trục (cơ chế 6)
 
-- [ ] **T7.1 — Hàm xoay.** `rotate(pts, origin, deg)` trong `transforms.js` (spec mục 6.2).
+- [x] **T7.1 — Hàm xoay.** `rotate(pts, origin, deg)` trong `transforms.js` (spec mục 6.2).
   *Acceptance:* test: xoay 90° điểm (origin.x+10, origin.y) → (origin.x, origin.y+10) (theo hệ y xuống).
 
-- [ ] **T7.2 — Điều khiển góc.** Thanh trượt / nút chỉnh `player.angle` trước khi bắn; hiện tia ngắm mờ theo góc.
+- [x] **T7.2 — Điều khiển góc.** Thanh trượt / nút chỉnh `player.angle` trước khi bắn; hiện tia ngắm mờ theo góc.
   *Acceptance:* đổi góc → tia ngắm xoay.
 
-- [ ] **T7.3 — Áp xoay vào pipeline.** Sau `sampleCurve`, gọi `rotate(pts, origin, player.angle)` trước va chạm.
+- [x] **T7.3 — Áp xoay vào pipeline.** Sau `sampleCurve`, gọi `rotate(pts, origin, player.angle)` trước va chạm.
   *Acceptance:* nhập `x^2` với góc 45° → parabol nghiêng 45°.
 
 **→ Kết thúc Phase 7 = hoàn thành v1 chơi được.**
@@ -199,53 +200,75 @@ Xem mục 5 của spec. Đây là phần chịu tải chính.
 
 ## Phase 8 — Mở rộng v1.1
 
-- [ ] **T8.1 — Di chuyển (cơ chế 3).** Mỗi lượt chọn *đi ≤ 2 ô* hoặc *bắn*. Quyết định lưới rời rạc hay toạ độ liên tục (câu hỏi mở #3 trong spec) trước khi làm.
+- [x] **T8.1 — Di chuyển (cơ chế 3).** Mỗi lượt chọn *đi ≤ 2 ô* hoặc *bắn*. Quyết định lưới rời rạc hay toạ độ liên tục (câu hỏi mở #3 trong spec) trước khi làm.
   *Acceptance:* chọn di chuyển → người chơi đổi vị trí, hết lượt.
+  *Ghi chú:* chốt câu hỏi mở #3 = **lưới ô rời rạc** (1 ô = `PIXELS_PER_UNIT`, khớp lưới nền đã vẽ), không dùng toạ độ liên tục — dễ hình dung, dễ test, nhất quán với cách vẽ grid có sẵn. `MoveControl.jsx` cho chọn 1/2 ô + hướng (8 phía); `MOVE` (gameState.js) kẹp vị trí trong bounds màn hình. Di chuyển và bắn loại trừ nhau vì cả hai đều tự `NEXT_TURN`.
 
-- [ ] **T8.2 — Vật phẩm (cơ chế 7).** Cài các biến đổi trên point pipeline: phản chiếu (`direction*=-1`), đảo trục X/Y, nhân đôi đồ thị (thêm bản `-f(x)`), tăng phạm vi (`xMax`).
+- [x] **T8.2 — Vật phẩm (cơ chế 7).** Cài các biến đổi trên point pipeline: phản chiếu (`direction*=-1`), đảo trục X/Y, nhân đôi đồ thị (thêm bản `-f(x)`), tăng phạm vi (`xMax`).
   *Acceptance:* dùng "phản chiếu" → đường cong lật hướng đúng.
+  *Ghi chú:* các biến đổi thuần nằm ở `src/engine/items.js` (`applyItemToSampleOptions`, `applyItemToPoints`, `mirrorFn`), áp vào pipeline trong `GameScreen.handleFire` đúng thứ tự spec 6.1→6.2→6.3 (sample → rotate → item). "Nhân đôi" vẽ + kiểm tra va chạm song song trên cả hai đường cong.
 
-- [ ] **T8.3 — UI túi đồ.** Hiển thị vật phẩm đang có, cho phép kích hoạt trước khi bắn.
+- [x] **T8.3 — UI túi đồ.** Hiển thị vật phẩm đang có, cho phép kích hoạt trước khi bắn.
   *Acceptance:* kích hoạt vật phẩm → hiệu ứng áp vào phát bắn kế.
+  *Ghi chú:* chưa có cơ chế nhặt/rơi vật phẩm nên mỗi người chơi khởi đầu với đủ bộ 5 loại (`STARTER_ITEMS` trong `gameState.js`) để chơi/test ngay; `ItemBag.jsx` chọn vật phẩm active, tiêu hao qua action `USE_ITEM` sau khi bắn xong.
 
 ---
 
 ## Phase 9 — Địa hình (cơ chế 4, v1.2)
 
-- [ ] **T9.1 — Mô hình địa hình.** `Terrain`: tường, hố, khối phản xạ, cổng dịch chuyển.
-- [ ] **T9.2 — Chặn đường cong.** Khi sample gặp tường/hố → cắt đường cong tại điểm chạm.
+- [x] **T9.1 — Mô hình địa hình.** `Terrain`: tường, hố, khối phản xạ, cổng dịch chuyển.
+  *Ghi chú:* spec chỉ khai báo `terrain: Terrain[]` mà không định hình cụ thể; thiết kế ở `src/engine/terrain.js` — mỗi terrain là hình chữ nhật `{x,y,w,h}` cùng hệ toạ độ pixel với điểm đường cong sau sample→rotate→item, cộng field riêng theo loại: `reflector` có `normal:{x,y}`, `portal` có `id`/`pairId` để ghép đôi hai chiều. Bản đồ mặc định (`src/game/terrain.js`) đặt theo tỉ lệ width/height, lưu trong `state.terrain` (reducer, `gameState.js`) và vẽ bằng `TerrainShape` trong `GameCanvas.jsx`.
+
+- [x] **T9.2 — Chặn đường cong.** Khi sample gặp tường/hố → cắt đường cong tại điểm chạm.
   *Acceptance:* đường cong dừng ở tường.
-- [ ] **T9.3 — Phản xạ.** Khối phản xạ: tính pháp tuyến mặt, đổi hướng phần đường cong còn lại. (Chốt câu hỏi mở #2 trước.)
+  *Ghi chú:* `applyTerrain()` quét mảng điểm (đã sample→rotate→item) theo thứ tự vẽ; gặp `wall`/`pit` → cắt `slice(0, hitIndex+1)`, dừng hẳn.
+
+- [x] **T9.3 — Phản xạ.** Khối phản xạ: tính pháp tuyến mặt, đổi hướng phần đường cong còn lại. (Chốt câu hỏi mở #2 trước.)
   *Acceptance:* đường cong bật lại đúng góc.
-- [ ] **T9.4 — Cổng dịch chuyển.** Điểm chạm cổng A → tiếp tục vẽ từ cổng B.
+  *Ghi chú:* chốt câu hỏi mở #2 = **phản xạ theo pháp tuyến mặt phẳng** (không chỉ chặn) — vì chính task này yêu cầu "tính pháp tuyến, đổi hướng phần còn lại", tường/hố (T9.2) vẫn dùng cách chặn đơn giản vì không có hướng phản xạ. `reflectPoints(pts, pivot, normal)` lật phần đuôi (sau điểm chạm) qua đường thẳng đi qua điểm chạm, vuông góc `normal`.
+
+- [x] **T9.4 — Cổng dịch chuyển.** Điểm chạm cổng A → tiếp tục vẽ từ cổng B.
   *Acceptance:* đường cong "teleport" liên tục.
+  *Ghi chú:* `findPortalPair` tìm cổng cùng `pairId` khác `id` (hai chiều); phần đuôi được tịnh tiến theo `offset = tâm cổng kia − điểm chạm` để nối liền mạch. Cổng lẻ (không cặp) → xử lý như tường. `applyTerrain` dùng con trỏ quét (`searchFrom`) để không xử lý lặp lại đoạn đầu đã chạm, tránh dịch chuyển/phản xạ chồng nhiều lần; giới hạn `maxBounces` chống lặp vô hạn nếu địa hình đặt sai.
 
 ---
 
 ## Phase 10 — Chế độ học (cơ chế 9)
 
-- [ ] **T10.1 — Nhận diện dạng hàm.** Từ kết quả `analyze` (loại hàm, bậc), suy ra nhãn: "parabol", "hàm bậc nhất", "sin"…
+- [x] **T10.1 — Nhận diện dạng hàm.** Từ kết quả `analyze` (loại hàm, bậc), suy ra nhãn: "parabol", "hàm bậc nhất", "sin"…
   *Acceptance:* bắn `x^2` → hiện "Đây là parabol (bậc 2)".
-- [ ] **T10.2 — Chế độ PvE tập luyện.** Bắn vào bia cố định kèm gợi ý cho người mới.
+  *Ghi chú:* `analyze()` (`astGuard.js`) nay trả thêm `fnNames` (tên hàm sin/cos/tan/sqrt/log/abs gặp trong lượt duyệt AST đã có sẵn) để không phải parse lại biểu thức lần hai. `engine/classify.js` (`classifyAnalysis`) suy nhãn từ đúng `{degree, fnNames}` đó. `GameScreen.handleFire` hiện caption ngay sau khi bắn, không chặn tiến độ chơi (chạy song song, đúng tinh thần spec mục 10).
+
+- [x] **T10.2 — Chế độ PvE tập luyện.** Bắn vào bia cố định kèm gợi ý cho người mới.
   *Acceptance:* chơi được một mình, có chú thích.
+  *Ghi chú:* `src/screens/PracticeScreen.jsx` — màn hình riêng, không dùng `gameReducer` (không có khái niệm lượt/thắng-thua), tái dùng các hàm engine thuần (astGuard/curve/collision/classify) như GameScreen. Bia (`target`) đổi chỗ ngẫu nhiên sau mỗi lần trúng để luyện tập liên tục; gợi ý (`BEGINNER_TIPS`) xoay vòng khi bắn trượt. Rule riêng `practice` (`game/rules.js`) nới rộng mana/bậc/số node cho người mới thoải mái thử nghiệm. `App.js` thêm thanh chuyển chế độ "2 người" / "Luyện tập" ở đầu màn hình.
 
 ---
 
 ## Phase 11 — Multiplayer online (tuỳ chọn)
 
-- [ ] **T11.1 — Chọn backend.** Firestore hoặc Supabase Realtime.
-- [ ] **T11.2 — Đồng bộ nước đi.** Gửi/nhận `{expr, angle, moveTo, playerId}` mỗi lượt; tái dựng trạng thái từ nước đi.
+- [x] **T11.1 — Chọn backend.** Firestore hoặc Supabase Realtime.
+  *Ghi chú:* người dùng chọn **Supabase Realtime** (Broadcast — không cần schema/bảng, không cần bật Realtime Authorization vì không broadcast từ database). `src/network/NetworkAdapter.js` định nghĩa giao diện `createRoom/joinRoom/sendMove/onMove` tách biệt khỏi backend cụ thể, kèm `createLocalLoopbackAdapter()` (bộ nhớ trong, test được không cần mạng). `src/network/SupabaseNetworkAdapter.js` triển khai đúng giao diện đó bằng kênh Broadcast thật (`@supabase/supabase-js`); test bằng client giả lập (không gọi mạng thật). Cần `EXPO_PUBLIC_SUPABASE_URL`/`EXPO_PUBLIC_SUPABASE_ANON_KEY` — xem `.env.example`; đã thêm `react-native-url-polyfill/auto` (import đầu tiên trong `App.js`, cần cho realtime-js dùng `URL` mà Hermes không có sẵn).
+
+- [x] **T11.2 — Đồng bộ nước đi.** Gửi/nhận `{expr, angle, moveTo, playerId}` mỗi lượt; tái dựng trạng thái từ nước đi.
   *Acceptance:* hai máy chơi cùng ván, thấy nước đi của nhau.
-- [ ] **T11.3 — Chống gian lận phía server (nếu cần).** Chạy `analyze` phía server để không tin client.
+  *Ghi chú:* `src/game/moves.js` — `createFireMove`/`createMoveMove` đóng gói move (field `type` tường minh thay vì suy luận qua expr/moveTo có mặt hay không); `resolveFireMove` tính lại đường cong/va chạm bằng đúng pipeline `GameScreen.handleFire` từng làm inline (sample→rotate→item→terrain→collision) — đã refactor `GameScreen` để gọi hàm này thay vì lặp logic; `applyMove` dispatch lại đúng chuỗi action reducer. Test xác nhận hai state khởi tạo giống nhau + cùng move → kết quả giống hệt nhau. `src/screens/OnlineScreen.jsx` nối trọn vẹn: tạo/vào phòng bằng mã, `sendMove` ngay sau khi bắn/di chuyển cục bộ, `onMove` dựng lại nước đi đối thủ qua `resolveFireMove` + replay animation. Người tạo phòng bị khoá thao tác tới khi nhận tín hiệu `'join'` từ người vào sau (Realtime Broadcast không lưu lịch sử, move gửi trước khi đối thủ subscribe sẽ mất). **Chưa tự kiểm được** hai thiết bị thật cùng chơi — cần bạn tạo project Supabase, điền `.env.local`, rồi tự thử trên 2 máy/2 Expo Go.
+
+- [x] **T11.3 — Chống gian lận phía server (nếu cần).** Chạy `analyze` phía server để không tin client.
+  *Ghi chú:* scaffold tham khảo `src/server/validateMove.js` (`validateFireMove`) — chạy lại `analyze()` (cùng file engine dùng ở client) với rules LƯU Ở SERVER, không tin rules client gửi kèm; có test minh hoạ. **Chưa deploy** — cần bọc vào một Supabase Edge Function khi bạn thấy cần chống gian lận thật (game hiện tại chưa có, vì Realtime Broadcast không có "phía server" để chạy code chặn client).
 
 ---
 
 ## Việc xuyên suốt (làm liên tục)
 
-- [ ] **X1 — Tách logic khỏi UI.** Mọi thứ trong `src/engine/` phải là hàm thuần, test được không cần React.
-- [ ] **X2 — Test.** Thêm test cho `analyze`, `sampleCurve`, `checkCollision`, `rotate` mỗi khi sửa.
-- [ ] **X3 — Cân bằng.** Bảng mana, `MAX_SLOPE`, miền `y` để ở `config.js`; chỉnh dựa trên playtest, không rải rác trong code.
-- [ ] **X4 — Chốt câu hỏi mở trong spec** (một-phát-chết hay có máu; luật combo; địa hình phản xạ hay chỉ chặn; di chuyển lưới hay liên tục) *trước khi* code phần liên quan.
+- [x] **X1 — Tách logic khỏi UI.** Mọi thứ trong `src/engine/` phải là hàm thuần, test được không cần React.
+  *Ghi chú (rà soát 2026-07-29):* xác nhận không file nào trong `src/engine/` import React/RN (`grep -ri react src/engine` rỗng). Việc liên tục — kiểm tra lại mỗi khi thêm file engine mới.
+- [x] **X2 — Test.** Thêm test cho `analyze`, `sampleCurve`, `checkCollision`, `rotate` mỗi khi sửa.
+  *Ghi chú (rà soát 2026-07-29):* cả 4 hàm đều có test riêng (`astGuard.test.js`, `curve.test.js`, `collision.test.js`, `transforms.test.js`), cộng test cho các hàm engine khác thêm sau (`classify`, `items`, `terrain`, `coords`, `gameState`, `moves`). `npx jest` → 13 suites / 117 tests pass. Việc liên tục — mỗi lần sửa 1 trong 4 hàm này phải chạy lại test tương ứng trước khi coi là xong.
+- [x] **X3 — Cân bằng.** Bảng mana, `MAX_SLOPE`, miền `y` để ở `config.js`; chỉnh dựa trên playtest, không rải rác trong code.
+  *Ghi chú (rà soát 2026-07-29):* phát hiện vi phạm — bảng giá mana (`COST`/`POW_COST`) nằm cứng trong `astGuard.js` thay vì `config.js`. Đã chuyển thành `MANA_COST`/`POW_COST` trong `src/config.js`, `astGuard.js` chỉ import và dùng (không còn định nghĩa số cân bằng). `MAX_SLOPE` vốn đã đúng chỗ (`config.js`, dùng trong `curve.js`/`moves.js`). Test lại: 117/117 pass sau khi sửa.
+- [x] **X4 — Chốt câu hỏi mở trong spec** (một-phát-chết hay có máu; luật combo; địa hình phản xạ hay chỉ chặn; di chuyển lưới hay liên tục) *trước khi* code phần liên quan.
+  *Ghi chú (rà soát 2026-07-29):* cả 4 câu hỏi mở (spec mục 13) đã có quyết định — #2 (phản xạ theo pháp tuyến) ghi ở T9.3, #3 (lưới rời rạc) ghi ở T8.1, #4 (một phát chết) ghi ở T5.2 (bổ sung trong lượt rà soát này, quyết định vốn đã nằm sẵn trong code từ Phase 5 nhưng chưa viết thành ghi chú). #1 (luật combo, cơ chế 8): giữ nguyên khuyến nghị của spec mục 8 — **hoãn khỏi v1**, chưa định nghĩa đủ rõ điều kiện kích hoạt/vùng sát thương nên chưa có task nào trong Phase 0–11 triển khai; sẽ chỉ code khi thu hẹp thành luật cụ thể như spec gợi ý.
 
 ---
 

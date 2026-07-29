@@ -64,4 +64,18 @@ export const chaos = {
   banPow2: false,
 };
 
-export const ALL_RULES = { polynomialOnly, trigOnly, noSquare, requireParenMatch, chaos };
+// Luyện tập (Chế độ học, cơ chế 9, T10.2) — nới rất rộng bậc/mana/số node để người mới thoải
+// mái thử nghiệm hình dạng đồ thị mà không bị AST guard cản; whitelist hàm và cấm chia vẫn
+// giữ nguyên (chống phá game luôn áp dụng, không tuỳ trận — spec mục 5.3).
+export const practice = {
+  name: 'Luyện tập',
+  allowedFns: new Set(['sin', 'cos', 'tan', 'sqrt', 'abs', 'log']),
+  maxMana: 999,
+  maxDeg: 6,
+  maxNodes: 200,
+  maxTrigCoeff: 999,
+  requireParen: false,
+  banPow2: false,
+};
+
+export const ALL_RULES = { polynomialOnly, trigOnly, noSquare, requireParenMatch, chaos, practice };

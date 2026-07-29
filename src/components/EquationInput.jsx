@@ -7,7 +7,7 @@ const DEBOUNCE_MS = 200;
 // EquationInput — ô nhập biểu thức + nút "Bắn". Gọi onFire(expr) khi bấm, hiện error nếu có.
 // Gõ tới đâu, chạy analyze(text, rules) (debounce) tới đó để hiện mana tiêu hao / lý do cấm
 // và disable nút Bắn khi biểu thức không hợp lệ (T3.8).
-export default function EquationInput({ onFire, error, rules }) {
+export default function EquationInput({ onFire, error, rules, disabled = false }) {
   const [text, setText] = useState('');
   const [check, setCheck] = useState({ ok: true, reason: '', mana: 0 });
 
@@ -21,11 +21,11 @@ export default function EquationInput({ onFire, error, rules }) {
     return () => clearTimeout(timer);
   }, [text, rules]);
 
-  const canFire = text.trim().length > 0 && check.ok;
+  const canFire = text.trim().length > 0 && check.ok && !disabled;
 
   const handleFire = () => {
     const expr = text.trim();
-    if (!expr || !check.ok) return;
+    if (!expr || !check.ok || disabled) return;
     onFire(expr);
   };
 
@@ -40,6 +40,7 @@ export default function EquationInput({ onFire, error, rules }) {
           placeholderTextColor="#888"
           autoCapitalize="none"
           autoCorrect={false}
+          editable={!disabled}
           onSubmitEditing={handleFire}
         />
         <TouchableOpacity
