@@ -1,6 +1,6 @@
 import { CANVAS_WIDTH, CANVAS_HEIGHT, PLAYER_RADIUS, DEFAULT_MANA, ANGLE_MAX } from '../config';
 import { ITEM_TYPES } from '../engine/items';
-import { createTerrain } from './terrain';
+import { createTerrain, DEFAULT_MAP_ID } from './terrain';
 
 // Bộ vật phẩm khởi đầu (cơ chế 7, Phase 8) — chưa có cơ chế nhặt/rơi vật phẩm trên bản đồ
 // nên mỗi người chơi bắt đầu với đủ một bộ để test/chơi được ngay; thu hẹp lại khi có luật
@@ -55,15 +55,17 @@ function clamp(value, min, max) {
 }
 
 // createInitialState — trạng thái game đầy đủ dùng cho gameReducer (T6.1). `terrain` khớp
-// field cùng tên trong GameState của spec (mục 7) — cố định theo bản đồ mặc định (Phase 9),
-// chưa có cơ chế chọn bản đồ nên tạo lại mỗi RESET giống players.
-export function createInitialState(width = CANVAS_WIDTH, height = CANVAS_HEIGHT) {
+// field cùng tên trong GameState của spec (mục 7); `mapId` chọn bản đồ nào trong MAP_LIST
+// (game/terrain.js) — lưu lại trong state để RESET (vd "Chơi lại") giữ nguyên bản đồ đang
+// chơi trừ khi người chơi chủ động đổi qua MapSelect.
+export function createInitialState(width = CANVAS_WIDTH, height = CANVAS_HEIGHT, mapId = DEFAULT_MAP_ID) {
   return {
     players: createPlayers(width, height),
     currentPlayerId: 'p1',
     phase: TURN_PHASE.AIMING,
     winnerId: null,
-    terrain: createTerrain(width, height),
+    mapId,
+    terrain: createTerrain(mapId, width, height),
   };
 }
 
@@ -151,7 +153,7 @@ export function gameReducer(state, action) {
     }
 
     case 'RESET':
-      return createInitialState(action.width, action.height);
+      return createInitialState(action.width, action.height, action.mapId ?? state.mapId);
 
     default:
       return state;

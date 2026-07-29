@@ -15,6 +15,7 @@ import TurnBar from '../components/TurnBar';
 import AngleControl from '../components/AngleControl';
 import MoveControl from '../components/MoveControl';
 import ItemBag from '../components/ItemBag';
+import MapSelect from '../components/MapSelect';
 import { analyze } from '../engine/astGuard';
 import { classifyAnalysis } from '../engine/classify';
 import { toPathD } from '../engine/curve';
@@ -166,14 +167,20 @@ export default function GameScreen() {
 
   const handleItemToggle = (itemId) => setActiveItemId(itemId);
 
-  const handleRestart = () => {
+  const resetMatch = (mapId) => {
     cancelAnimationFrame(animationRef.current);
     setCurveData(null);
     setError(null);
     setActiveItemId(null);
     setCaption(null);
-    dispatch({ type: 'RESET', width, height });
+    dispatch({ type: 'RESET', width, height, mapId });
   };
+
+  const handleRestart = () => resetMatch(undefined);
+
+  // handleMapChange — đổi bản đồ (MapSelect) coi như bắt đầu ván mới với địa hình mới;
+  // resetMatch dùng lại đúng logic dọn state cục bộ như "Chơi lại" (T9.1).
+  const handleMapChange = (mapId) => resetMatch(mapId);
 
   return (
     <View style={styles.container}>
@@ -193,6 +200,7 @@ export default function GameScreen() {
         inputTimeSec={INPUT_TIME_SEC}
         onTimeout={handleTimeout}
       />
+      <MapSelect mapId={state.mapId} disabled={phase === TURN_PHASE.FIRING} onSelect={handleMapChange} />
       {caption ? <Text style={[styles.caption, { top: insets.top + 76 }]}>{caption}</Text> : null}
       <KeyboardAvoidingView
         style={styles.inputBar}

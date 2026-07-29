@@ -136,9 +136,18 @@ function GridLines({ origin, pixelsPerUnit, width, height }) {
 // GameCanvas — vẽ lưới nền + các đường cong (mỗi đường là mảng điểm pixel đã quy đổi) + người chơi.
 // `aim` (tuỳ chọn): {x1,y1,x2,y2,color} — tia ngắm mờ nét đứt theo player.angle (T7.2),
 // vẽ trước đường cong/người chơi để không đè lên chúng.
+// `renderWidth`/`renderHeight` (tuỳ chọn): kích thước THẬT hiện trên màn hình, khi khác với
+// `width`/`height` (không gian toạ độ logic dùng để tính vật lý/va chạm) — cần cho Online
+// (OnlineScreen, Phase 11): hai máy màn hình khác kích thước PHẢI tính toán trên cùng một
+// không gian toạ độ cố định (CANVAS_WIDTH/HEIGHT) để "cùng move → cùng kết quả" (xem
+// game/moves.js), nhưng mỗi máy vẫn muốn hiển thị full màn hình của mình — viewBox co giãn
+// đúng tỉ lệ (không méo hình) thay vì đổi không gian toạ độ. Bỏ trống thì render 1:1 như cũ
+// (Hot-seat GameScreen/PracticeScreen — một máy, không cần tách logic khỏi hiển thị).
 export default function GameCanvas({
   width,
   height,
+  renderWidth,
+  renderHeight,
   origin,
   pixelsPerUnit,
   curve,
@@ -151,7 +160,12 @@ export default function GameCanvas({
   const allCurves = curves ?? (curve ? [curve] : []);
 
   return (
-    <Svg width={width} height={height} style={{ backgroundColor }}>
+    <Svg
+      width={renderWidth ?? width}
+      height={renderHeight ?? height}
+      viewBox={`0 0 ${width} ${height}`}
+      style={{ backgroundColor }}
+    >
       <GridLines origin={origin} pixelsPerUnit={pixelsPerUnit} width={width} height={height} />
       {terrain.map((t, i) => (
         <TerrainShape key={i} t={t} index={i} />

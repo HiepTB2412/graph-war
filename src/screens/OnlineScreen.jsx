@@ -20,7 +20,16 @@ import { analyze } from '../engine/astGuard';
 import { classifyAnalysis } from '../engine/classify';
 import { toPathD } from '../engine/curve';
 import { rotate } from '../engine/transforms';
-import { PIXELS_PER_UNIT, PROJECTILE_POINTS_PER_FRAME, INPUT_TIME_SEC, ANGLE_STEP, AIM_RAY_LENGTH, MAX_MOVE_CELLS } from '../config';
+import {
+  PIXELS_PER_UNIT,
+  PROJECTILE_POINTS_PER_FRAME,
+  INPUT_TIME_SEC,
+  ANGLE_STEP,
+  AIM_RAY_LENGTH,
+  MAX_MOVE_CELLS,
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+} from '../config';
 import { chaos as activeRules } from '../game/rules';
 import { createInitialState, gameReducer, shooterDirection, TURN_PHASE } from '../game/gameState';
 import { createFireMove, createMoveMove, resolveFireMove } from '../game/moves';
@@ -35,6 +44,12 @@ import { createSupabaseNetworkAdapter } from '../network/SupabaseNetworkAdapter'
 // Chống mất nước đi đầu: p1 (chủ phòng) bị khoá thao tác cho tới khi nhận được tín hiệu 'join'
 // từ p2 — vì Realtime Broadcast không lưu lịch sử, move gửi trước khi p2 subscribe sẽ mất.
 export default function OnlineScreen() {
+  // width/height = kích thước THẬT màn hình máy này, chỉ dùng để HIỂN THỊ (GameCanvas
+  // renderWidth/renderHeight) — mọi tính toán vật lý/state dùng CANVAS_WIDTH/HEIGHT cố định
+  // bên dưới. Hai máy màn hình khác kích thước mà lỡ dùng width/height thật cho state (như
+  // trước khi sửa) sẽ có vị trí người chơi/địa hình khác nhau ngay từ đầu ván — cùng một
+  // nước đi (cùng expr/góc) ra kết quả va chạm khác nhau giữa hai máy dù resolveFireMove vẫn
+  // chạy đúng cùng một logic (bug đã gặp khi test 2 máy thật, không phải lỗi race-condition).
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [connectError, setConnectError] = useState(null);
@@ -42,11 +57,13 @@ export default function OnlineScreen() {
   const [roomId, setRoomId] = useState(null);
   const [myPlayerId, setMyPlayerId] = useState(null);
   const [opponentJoined, setOpponentJoined] = useState(false);
+  // rematchStatus — 'idle' | 'requested' (mình vừa mời, chờ đối thủ) | 'invited' (đối thủ vừa
+  // mời, chờ mình xác nhận). Chỉ là tín hiệu UI cục bộ, không phải một 'move' theo nghĩa
+  // game/moves.js (không cần resolveFireMove/applyMove) — gửi thẳng qua adapter như 'join'.
+  const [rematchStatus, setRematchStatus] = useState('idle');
 
-  const [state, dispatch] = useReducer(
-    gameReducer,
-    { width, height },
-    ({ width, height }) => createInitialState(width, height)
+  const [state, dispatch] = useReducer(gameReducer, undefined, () =>
+    createInitialState(CANVAS_WIDTH, CANVAS_HEIGHT)
   );
   const [curveData, setCurveData] = useState(null);
   const [error, setError] = useState(null);
@@ -65,7 +82,7 @@ export default function OnlineScreen() {
   );
   useEffect(() => setActiveItemId(null), [state.currentPlayerId]);
 
-  const gridOrigin = useMemo(() => ({ x: width / 2, y: height / 2 }), [width, height]);
+  const gridOrigin = useMemo(() => ({ x: CANVAS_WIDTH / 2, y: CANVAS_HEIGHT / 2 }), []);
   const { players, currentPlayerId, phase, winnerId } = state;
   const currentPlayer = players.find((p) => p.id === currentPlayerId);
   const winner = players.find((p) => p.id === winnerId);
@@ -113,10 +130,33 @@ export default function OnlineScreen() {
     dispatch({ type: 'NEXT_TURN' });
   }
 
+  // startRematch — bắt đầu ván mới TRONG CÙNG phòng (roomId/myPlayerId/opponentJoined giữ
+  // nguyên, chỉ reset trạng thái ván đấu) — gọi ở CẢ HAI máy khi đã "đồng thuận" đấu lại
+  // (bên mời gọi khi nhận 'rematch_accept', bên được mời gọi ngay khi tự bấm đồng ý). Hai máy
+  // cùng gọi createInitialState(CANVAS_WIDTH, CANVAS_HEIGHT) như lúc vào phòng lần đầu — hàm
+  // thuần/deterministic nên không cần đồng bộ thêm gì khác.
+  function startRematch() {
+    cancelAnimationFrame(animationRef.current);
+    setCurveData(null);
+    setError(null);
+    setActiveItemId(null);
+    setCaption(null);
+    setRematchStatus('idle');
+    dispatch({ type: 'RESET', width: CANVAS_WIDTH, height: CANVAS_HEIGHT });
+  }
+
   function handleRemoteMessage(move) {
     if (move.playerId === myPlayerId) return; // tự vệ nếu backend echo lại chính mình
     if (move.type === 'join') {
       setOpponentJoined(true);
+      return;
+    }
+    if (move.type === 'rematch_request') {
+      setRematchStatus('invited');
+      return;
+    }
+    if (move.type === 'rematch_accept') {
+      startRematch();
       return;
     }
     if (move.type === 'fire') playFireMove(move);
@@ -171,7 +211,7 @@ export default function OnlineScreen() {
         expr,
         angle: shooter.angle,
         itemId: activeItemId,
-        bounds: { w: width, h: height },
+        bounds: { w: CANVAS_WIDTH, h: CANVAS_HEIGHT },
       });
       setError(null);
       playFireMove(move);
@@ -190,13 +230,49 @@ export default function OnlineScreen() {
       playerId: currentPlayerId,
       dx: cellsDx * PIXELS_PER_UNIT,
       dy: cellsDy * PIXELS_PER_UNIT,
-      bounds: { w: width, h: height },
+      bounds: { w: CANVAS_WIDTH, h: CANVAS_HEIGHT },
     });
     playMoveMove(move);
     getAdapter().sendMove(roomId, move);
   };
 
   const handleItemToggle = (itemId) => setActiveItemId(itemId);
+
+  // handleExit — thoát phòng sau khi ván kết thúc, quay về màn hình lobby (T11.2 mở rộng).
+  // Chỉ dọn state CỤC BỘ của máy này (huỷ đăng ký onMove, reset roomId/state) — không có khái
+  // niệm "rời phòng" phía server vì Realtime Broadcast không lưu phòng, đối thủ tự thấy mất kết
+  // nối nếu họ vẫn đang đợi nước đi tiếp theo.
+  const handleExit = () => {
+    cancelAnimationFrame(animationRef.current);
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+      unsubscribeRef.current = null;
+    }
+    setRoomId(null);
+    setMyPlayerId(null);
+    setOpponentJoined(false);
+    setJoinCodeInput('');
+    setRematchStatus('idle');
+    setCurveData(null);
+    setError(null);
+    setActiveItemId(null);
+    setCaption(null);
+    dispatch({ type: 'RESET', width: CANVAS_WIDTH, height: CANVAS_HEIGHT });
+  };
+
+  // handleInviteRematch — gửi lời mời đấu lại, CHƯA bắt đầu ván mới ngay (chỉ đổi trạng thái
+  // UI sang "đã mời, đang chờ") — chỉ thật sự reset khi nhận 'rematch_accept' từ đối thủ.
+  const handleInviteRematch = () => {
+    setRematchStatus('requested');
+    getAdapter().sendMove(roomId, { type: 'rematch_request', playerId: myPlayerId });
+  };
+
+  // handleAcceptRematch — đối thủ đã mời (rematchStatus === 'invited'), mình bấm đồng ý: báo
+  // lại cho đối thủ BIẾT mình đã xác nhận rồi mới tự bắt đầu ván mới ở máy mình (startRematch).
+  const handleAcceptRematch = () => {
+    getAdapter().sendMove(roomId, { type: 'rematch_accept', playerId: myPlayerId });
+    startRematch();
+  };
 
   const aim = useMemo(() => {
     if (phase !== TURN_PHASE.AIMING) return null;
@@ -242,8 +318,10 @@ export default function OnlineScreen() {
   return (
     <View style={styles.container}>
       <GameCanvas
-        width={width}
-        height={height}
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        renderWidth={width}
+        renderHeight={height}
         origin={gridOrigin}
         pixelsPerUnit={PIXELS_PER_UNIT}
         curves={curveData ?? []}
@@ -275,6 +353,27 @@ export default function OnlineScreen() {
       {phase === TURN_PHASE.OVER ? (
         <View style={styles.overlay}>
           <Text style={styles.overlayTitle}>{winner ? `${winner.label} thắng!` : 'Kết thúc'}</Text>
+          {rematchStatus === 'invited' ? (
+            <>
+              <Text style={styles.rematchNote}>Đối thủ muốn đấu lại</Text>
+              <TouchableOpacity style={styles.rematchButton} onPress={handleAcceptRematch}>
+                <Text style={styles.overlayButtonText}>Đồng ý đấu lại</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <TouchableOpacity
+              style={[styles.rematchButton, rematchStatus === 'requested' && styles.rematchButtonDisabled]}
+              onPress={handleInviteRematch}
+              disabled={rematchStatus === 'requested'}
+            >
+              <Text style={styles.overlayButtonText}>
+                {rematchStatus === 'requested' ? 'Đã gửi lời mời…' : 'Mời đấu lại'}
+              </Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.overlayButton} onPress={handleExit}>
+            <Text style={styles.overlayButtonText}>Thoát phòng</Text>
+          </TouchableOpacity>
         </View>
       ) : null}
     </View>
@@ -370,5 +469,36 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 28,
     fontWeight: '800',
+  },
+  rematchNote: {
+    marginTop: 24,
+    color: '#b0bec5',
+    fontSize: 14,
+  },
+  rematchButton: {
+    marginTop: 24,
+    height: 48,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    backgroundColor: '#00695c',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rematchButtonDisabled: {
+    opacity: 0.5,
+  },
+  overlayButton: {
+    marginTop: 12,
+    height: 48,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    backgroundColor: '#e53935',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  overlayButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
   },
 });
