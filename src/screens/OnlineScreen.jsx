@@ -159,6 +159,10 @@ export default function OnlineScreen() {
       startRematch();
       return;
     }
+    if (move.type === 'timeout') {
+      dispatch({ type: 'NEXT_TURN' });
+      return;
+    }
     if (move.type === 'fire') playFireMove(move);
     else if (move.type === 'move') playMoveMove(move);
   }
@@ -223,6 +227,17 @@ export default function OnlineScreen() {
   };
 
   const handleAngleChange = (angle) => dispatch({ type: 'SET_ANGLE', playerId: currentPlayerId, angle });
+
+  // handleTimeout — timer nhập (T6.4) áp cho Online: TurnBar chỉ chạy active khi myTurn (xem
+  // JSX bên dưới), nên chỉ MÁY ĐANG TỚI LƯỢT mới có thể gọi hàm này — tránh cả hai máy cùng tự
+  // ý NEXT_TURN độc lập (dễ lệch nếu người chơi vừa bắn xong đúng lúc hết giờ ở máy kia). Máy
+  // hết giờ tự NEXT_TURN cục bộ rồi gửi tín hiệu 'timeout' (không phải move thật, giống 'join')
+  // để máy đối thủ áp lại ĐÚNG chuỗi NEXT_TURN đó, không tự đếm giờ riêng.
+  const handleTimeout = () => {
+    if (!myTurn) return;
+    dispatch({ type: 'NEXT_TURN' });
+    getAdapter().sendMove(roomId, { type: 'timeout', playerId: myPlayerId });
+  };
 
   const handleMove = (cellsDx, cellsDy) => {
     if (!myTurn) return;
@@ -331,9 +346,9 @@ export default function OnlineScreen() {
       />
       <TurnBar
         currentPlayer={currentPlayer}
-        active={false}
+        active={myTurn}
         inputTimeSec={INPUT_TIME_SEC}
-        onTimeout={() => {}}
+        onTimeout={handleTimeout}
       />
       <Text style={[styles.youLabel, { top: insets.top + 76 }]}>
         {myTurn ? 'Đến lượt bạn' : 'Chờ đối thủ…'}

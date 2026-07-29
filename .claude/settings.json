@@ -167,7 +167,11 @@
       "Bash(/Users/anhlocmascom/.nvm/versions/node/v22.23.1/bin/node /private/tmp/claude-501/-Users-anhlocmascom-Desktop-graph-war/75d23fe0-090b-46d4-9fd2-0b766c2fa7e3/scratchpad/../../../../.npm/_npx/e41f203b7505f1fb/node_modules/.bin/playwright screenshot --browser=chromium --viewport-size=390,844 --wait-for-timeout=3000 http://localhost:8090/graph-war/ /private/tmp/claude-501/-Users-anhlocmascom-Desktop-graph-war/75d23fe0-090b-46d4-9fd2-0b766c2fa7e3/scratchpad/pages-sim-check.png)",
       "Bash(/Users/anhlocmascom/.nvm/versions/node/v22.23.1/bin/node /Users/anhlocmascom/.npm/_npx/e41f203b7505f1fb/node_modules/.bin/playwright screenshot --browser=chromium --viewport-size=390,844 --wait-for-timeout=3000 http://localhost:8090/graph-war/ /private/tmp/claude-501/-Users-anhlocmascom-Desktop-graph-war/75d23fe0-090b-46d4-9fd2-0b766c2fa7e3/scratchpad/pages-sim-check.png)",
       "Bash(gh api *)",
-      "Bash(lsof -i :8090 -sTCP:LISTEN)"
+      "Bash(lsof -i :8090 -sTCP:LISTEN)",
+      "Bash(ps -p 53432 -o pid,command)",
+      "Bash(kill 77212)",
+      "Bash(kill -9 77212)",
+      "Bash(/Users/anhlocmascom/Library/Android/sdk/emulator/emulator -avd Pixel_9_Pro_XL -no-snapshot-load -port 5580)"
     ],
     "additionalDirectories": [
       "/private/tmp/test-graph-war",

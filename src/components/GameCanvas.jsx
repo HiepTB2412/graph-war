@@ -113,22 +113,46 @@ function TerrainShape({ t, index }) {
   return parts;
 }
 
+// GridLines — lưới nền + nhãn toạ độ "Ncm" dọc theo hai trục (mỗi ô lưới = 1 đơn vị toán
+// học ux/uy, không phải cm vật lý màn hình — ghi "cm" chỉ để giống giấy kẻ ô quen thuộc,
+// nhất quán trên mọi thiết bị vì không phụ thuộc mật độ điểm ảnh thật). Quét theo SỐ ĐƠN VỊ
+// (không phải theo pixel như trước) để biết đúng giá trị cần ghi ở mỗi đường lưới.
 function GridLines({ origin, pixelsPerUnit, width, height }) {
   const lines = [];
 
-  for (let x = origin.x % pixelsPerUnit; x <= width; x += pixelsPerUnit) {
-    lines.push(
-      <Line key={`v${x}`} x1={x} y1={0} x2={x} y2={height} stroke="#333" strokeWidth={1} />
-    );
+  const minXUnit = Math.ceil(-origin.x / pixelsPerUnit);
+  const maxXUnit = Math.floor((width - origin.x) / pixelsPerUnit);
+  const minYUnit = Math.ceil((origin.y - height) / pixelsPerUnit);
+  const maxYUnit = Math.floor(origin.y / pixelsPerUnit);
+
+  for (let n = minXUnit; n <= maxXUnit; n++) {
+    const x = origin.x + n * pixelsPerUnit;
+    lines.push(<Line key={`v${n}`} x1={x} y1={0} x2={x} y2={height} stroke="#333" strokeWidth={1} />);
+    if (n !== 0) {
+      lines.push(
+        <SvgText key={`vlabel${n}`} x={x + 2} y={origin.y - 4} fill="#666" fontSize={9} textAnchor="start">
+          {`${n}cm`}
+        </SvgText>
+      );
+    }
   }
-  for (let y = origin.y % pixelsPerUnit; y <= height; y += pixelsPerUnit) {
-    lines.push(
-      <Line key={`h${y}`} x1={0} y1={y} x2={width} y2={y} stroke="#333" strokeWidth={1} />
-    );
+  for (let n = minYUnit; n <= maxYUnit; n++) {
+    const y = origin.y - n * pixelsPerUnit;
+    lines.push(<Line key={`h${n}`} x1={0} y1={y} x2={width} y2={y} stroke="#333" strokeWidth={1} />);
+    if (n !== 0) {
+      lines.push(
+        <SvgText key={`hlabel${n}`} x={origin.x + 4} y={y - 2} fill="#666" fontSize={9} textAnchor="start">
+          {`${n}cm`}
+        </SvgText>
+      );
+    }
   }
   lines.push(
     <Line key="axis-x" x1={0} y1={origin.y} x2={width} y2={origin.y} stroke="#777" strokeWidth={1.5} />,
-    <Line key="axis-y" x1={origin.x} y1={0} x2={origin.x} y2={height} stroke="#777" strokeWidth={1.5} />
+    <Line key="axis-y" x1={origin.x} y1={0} x2={origin.x} y2={height} stroke="#777" strokeWidth={1.5} />,
+    <SvgText key="origin-label" x={origin.x + 4} y={origin.y - 4} fill="#888" fontSize={9} textAnchor="start">
+      0
+    </SvgText>
   );
   return lines;
 }
