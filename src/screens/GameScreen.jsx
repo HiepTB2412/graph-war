@@ -27,6 +27,8 @@ import {
   ANGLE_STEP,
   AIM_RAY_LENGTH,
   MAX_MOVE_CELLS,
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
 } from '../config';
 import { chaos as activeRules } from '../game/rules';
 import { createInitialState, gameReducer, shooterDirection, TURN_PHASE } from '../game/gameState';
@@ -48,12 +50,16 @@ import { createFireMove, createMoveMove, resolveFireMove } from '../game/moves';
 // mạng để máy khác tự dựng lại kết quả bằng resolveFireMove/applyMove (chưa nối adapter thật,
 // xem src/network/).
 export default function GameScreen() {
+  // width/height = kích thước THẬT màn hình máy này, chỉ dùng để HIỂN THỊ (GameCanvas
+  // renderWidth/renderHeight) — mọi tính toán vật lý/state (vị trí người chơi, địa hình,
+  // tầm bắn) dùng CANVAS_WIDTH/HEIGHT cố định bên dưới. Trên màn hình rộng (web/tablet),
+  // dùng width thật cho vị trí người chơi trong khi tầm bắn (X_MAX*PIXELS_PER_UNIT) là số
+  // pixel CỐ ĐỊNH sẽ khiến khoảng cách hai người chơi giãn theo % màn hình còn tầm bắn thì
+  // không đổi → đường cong hụt, không tới được đối phương trên màn hình rộng.
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const [state, dispatch] = useReducer(
-    gameReducer,
-    { width, height },
-    ({ width, height }) => createInitialState(width, height)
+  const [state, dispatch] = useReducer(gameReducer, undefined, () =>
+    createInitialState(CANVAS_WIDTH, CANVAS_HEIGHT)
   );
   const [curveData, setCurveData] = useState(null);
   const [error, setError] = useState(null);
@@ -64,7 +70,7 @@ export default function GameScreen() {
   useEffect(() => () => cancelAnimationFrame(animationRef.current), []);
   useEffect(() => setActiveItemId(null), [state.currentPlayerId]);
 
-  const gridOrigin = useMemo(() => ({ x: width / 2, y: height / 2 }), [width, height]);
+  const gridOrigin = useMemo(() => ({ x: CANVAS_WIDTH / 2, y: CANVAS_HEIGHT / 2 }), []);
   const { players, currentPlayerId, phase, winnerId } = state;
   const currentPlayer = players.find((p) => p.id === currentPlayerId);
   const winner = players.find((p) => p.id === winnerId);
@@ -96,7 +102,7 @@ export default function GameScreen() {
         expr,
         angle: shooter.angle,
         itemId: activeItemId,
-        bounds: { w: width, h: height },
+        bounds: { w: CANVAS_WIDTH, h: CANVAS_HEIGHT },
       });
       const { curvesPts, hit } = resolveFireMove(state, move);
 
@@ -158,7 +164,7 @@ export default function GameScreen() {
       playerId: currentPlayerId,
       dx: cellsDx * PIXELS_PER_UNIT,
       dy: cellsDy * PIXELS_PER_UNIT,
-      bounds: { w: width, h: height },
+      bounds: { w: CANVAS_WIDTH, h: CANVAS_HEIGHT },
     });
     dispatch({ type: 'MOVE', playerId: move.playerId, dx: move.moveTo.dx, dy: move.moveTo.dy, bounds: move.bounds });
     dispatch({ type: 'NEXT_TURN' });
@@ -173,7 +179,7 @@ export default function GameScreen() {
     setError(null);
     setActiveItemId(null);
     setCaption(null);
-    dispatch({ type: 'RESET', width, height, mapId });
+    dispatch({ type: 'RESET', width: CANVAS_WIDTH, height: CANVAS_HEIGHT, mapId });
   };
 
   const handleRestart = () => resetMatch(undefined);
@@ -185,8 +191,10 @@ export default function GameScreen() {
   return (
     <View style={styles.container}>
       <GameCanvas
-        width={width}
-        height={height}
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        renderWidth={width}
+        renderHeight={height}
         origin={gridOrigin}
         pixelsPerUnit={PIXELS_PER_UNIT}
         curves={curveData ?? []}

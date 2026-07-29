@@ -171,7 +171,10 @@
       "Bash(ps -p 53432 -o pid,command)",
       "Bash(kill 77212)",
       "Bash(kill -9 77212)",
-      "Bash(/Users/anhlocmascom/Library/Android/sdk/emulator/emulator -avd Pixel_9_Pro_XL -no-snapshot-load -port 5580)"
+      "Bash(/Users/anhlocmascom/Library/Android/sdk/emulator/emulator -avd Pixel_9_Pro_XL -no-snapshot-load -port 5580)",
+      "Bash(grep -n \"bounds: { w: width, h: height }\" /Users/anhlocmascom/Desktop/graph-war/src/screens/GameScreen.jsx)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8083)",
+      "Bash(kill 79381)"
     ],
     "additionalDirectories": [
       "/private/tmp/test-graph-war",

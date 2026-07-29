@@ -14,7 +14,16 @@ import { analyze, compileFunction } from '../engine/astGuard';
 import { classifyAnalysis } from '../engine/classify';
 import { sampleCurve, toPathD } from '../engine/curve';
 import { checkCollision } from '../engine/collision';
-import { PIXELS_PER_UNIT, X_MAX, STEP, MAX_SLOPE, PLAYER_RADIUS, PROJECTILE_POINTS_PER_FRAME } from '../config';
+import {
+  PIXELS_PER_UNIT,
+  X_MAX,
+  STEP,
+  MAX_SLOPE,
+  PLAYER_RADIUS,
+  PROJECTILE_POINTS_PER_FRAME,
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+} from '../config';
 import { practice as practiceRules } from '../game/rules';
 
 const BEGINNER_TIPS = [
@@ -38,13 +47,24 @@ function randomTargetPosition(width, height) {
 // không có khái niệm lượt/thắng-thua ở đây. Dùng lại đúng engine thuần (astGuard/curve/
 // collision/classify) như GameScreen để không lặp logic.
 export default function PracticeScreen() {
+  // width/height = kích thước THẬT màn hình máy này, chỉ dùng để HIỂN THỊ (GameCanvas
+  // renderWidth/renderHeight) — vị trí người bắn/bia và tầm bắn (sampleCurve bounds) dùng
+  // CANVAS_WIDTH/HEIGHT cố định, không phải màn hình rộng nào (web/tablet) khiến bia bị đặt
+  // xa hơn tầm bắn cố định (X_MAX*PIXELS_PER_UNIT) của đường cong.
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const shooter = { id: 'you', x: width * 0.12, y: height / 2, radius: PLAYER_RADIUS, color: '#4dd0e1', label: 'Bạn' };
+  const shooter = {
+    id: 'you',
+    x: CANVAS_WIDTH * 0.12,
+    y: CANVAS_HEIGHT / 2,
+    radius: PLAYER_RADIUS,
+    color: '#4dd0e1',
+    label: 'Bạn',
+  };
 
   const [target, setTarget] = useState(() => ({
     id: 'target',
-    ...randomTargetPosition(width, height),
+    ...randomTargetPosition(CANVAS_WIDTH, CANVAS_HEIGHT),
     radius: PLAYER_RADIUS,
     color: '#ffca28',
     label: 'Bia',
@@ -73,7 +93,7 @@ export default function PracticeScreen() {
         direction: 1,
         xMax: X_MAX,
         step: STEP,
-        bounds: { w: width, h: height },
+        bounds: { w: CANVAS_WIDTH, h: CANVAS_HEIGHT },
         maxSlope: MAX_SLOPE,
       });
 
@@ -95,7 +115,7 @@ export default function PracticeScreen() {
         if (hit) {
           setScore((s) => s + 1);
           setHint('Trúng bia! Bia vừa đổi chỗ, thử tiếp một dạng hàm khác xem sao.');
-          setTarget((t) => ({ ...t, ...randomTargetPosition(width, height) }));
+          setTarget((t) => ({ ...t, ...randomTargetPosition(CANVAS_WIDTH, CANVAS_HEIGHT) }));
         } else {
           setHint((prevHint) => {
             const idx = BEGINNER_TIPS.indexOf(prevHint);
@@ -114,9 +134,11 @@ export default function PracticeScreen() {
   return (
     <View style={styles.container}>
       <GameCanvas
-        width={width}
-        height={height}
-        origin={{ x: width / 2, y: height / 2 }}
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        renderWidth={width}
+        renderHeight={height}
+        origin={{ x: CANVAS_WIDTH / 2, y: CANVAS_HEIGHT / 2 }}
         pixelsPerUnit={PIXELS_PER_UNIT}
         curves={curveData ? [curveData] : []}
         players={[shooter, target]}
